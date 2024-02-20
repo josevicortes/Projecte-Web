@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="CSS/estilo.css">
+    <script src="JS/jquery-3.7.1.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            function mostrarUsuarios() {
+                $.ajax({
+                    type: "GET",
+                    url: "PHP/mostrar.php",
+                    success: function (resultado) {
+                        var users = jQuery.parseJSON(resultado);
+                        $("#bloque").empty();
+                        for (var x of users) {
+                            pintar(x);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("Atención: se ha producido un error al mostrar");
+                        $("#mensaje1").append(xhr.statusText + xhr.responseText);
+                    },
+                });
+            }
+
+            function pintar(x) {
+                $("<div class='users'><div>" + x.codigo + "</div><div>" + x.user + "</div><div>" + x.email + "</div></div>").appendTo("#bloque");
+            }
+
+            $("#submit").on("click", function () {
+                var datos_new_user = $("#my_form").serialize();
+                $.ajax({
+                    type: "GET",
+                    url: "PHP/insertar.php",
+                    data: datos_new_user,
+                    success: function () {
+                        mostrarUsuarios(); 
+                    },
+                    error: function (xhr) {
+                        alert("Atención: se ha producido un error al insertar");
+                        $("#mensaje1").append(xhr.statusText + xhr.responseText);
+                    },
+                });
+            });
+
+
+            $("#mostrar").on("click", function () {
+                mostrarUsuarios(); 
+                $.ajax({
+                    type: "GET",
+                    url: "PHP/mostrar.php",
+                    success: function (resultado) {
+                        var users = jQuery.parseJSON(resultado);
+                        $("#bloque").empty();
+                        for (var x of users) {
+                            pintar(x);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("Atención: se ha producido un error al mostrar");
+                        $("#mensaje1").append(xhr.statusText + xhr.responseText);
+                    },
+                });
+            });
+
+            $("#eliminar").on("click", function () {
+                $.ajax({
+                    type: "GET",
+                    url: "PHP/eliminar.php",
+                    success: function (resultado) {
+                        var users = jQuery.parseJSON(resultado);
+                        $("#bloque").empty(); 
+                        for (var x of users) {
+                            pintar(x);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("Atención: se ha producido un error al eliminar");
+                        $("#mensaje1").append(xhr.statusText + xhr.responseText);
+                    },
+                });
+            });
+
+            $("body").on("click", "input.eliminar", function () {
+                var codigo = $(this).attr('data-codigo');
+                $.ajax({
+                    type: "GET",
+                    url: "PHP/eliminar.php?cod_user=" + codigo,
+                    success: function (resultado) {
+                        var users = jQuery.parseJSON(resultado);
+                        $("#bloque").empty(); 
+                        for (var x of users) {
+                            pintar(x);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("Atención: se ha producido un error al eliminar");
+                        $("#mensaje1").append(xhr.statusText + xhr.responseText);
+                    },
+                });
+            });
+
+            function pintar(x) {
+                $("<div class='users'><div>" + x.codigo + "</div><div>" + x.user + "</div><div>" + x.email + "</div><input type='button' class='eliminar' data-codigo='" + x.codigo + "' value='eliminar'></div>").appendTo("#bloque");
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <center>
+        <form id="my_form">
+            <br>
+            Usuario: <input type="text" name="user"><br>
+            Password: <input type="password" name="password"><br>
+            Email: <input type="email" name="email"><br>
+            Permission: <input type="permissions" name="permissions"><br>
+            <button type="button" id="submit">New user</button>
+        </form>
+        <button type="button" id="mostrar">Mostrar usuarios</button>
+        <button type="button" id="eliminar">Eliminar usuarios</button>
+    </center>
+    <div id="mensaje1"></div>
+    <div id="bloque"></div>
+</body>
+</html>
